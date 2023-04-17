@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -26,5 +27,11 @@ func main() {
 	}
 	db.AutoMigrate(&Product{})
 	db.AutoMigrate(&ProductMedia{})
-	
+	r := gin.Default()
+	r.GET("/product", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"message": "oke",
+		})
+	})
+	r.Run()
 }
