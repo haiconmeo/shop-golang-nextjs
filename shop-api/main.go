@@ -28,6 +28,14 @@ type Page struct {
 	Filter string `form:"filter"`
 }
 
+type ResponseTemplate struct {
+	data   []interface{}
+	count  int
+	limit  int
+	page   int
+	filter string
+}
+
 func createProduct(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var data Product
@@ -79,14 +87,21 @@ func getAllProduct(db *gorm.DB) gin.HandlerFunc {
 			page.Page = 1
 		}
 		var products []Product
-		if err := db.Limit(page.Limit).Offset(page.Page).Find(&products).Error; err != nil {
+		repo := db.Limit(page.Limit).Offset(page.Page)
+		if err := repo.Find(&products).Error; err != nil {
 			ctx.JSON(400, gin.H{
 				"message": "error",
 			})
 			return
 		}
+		var count int64
+		repo.Count(&count)
 		ctx.JSON(200, gin.H{
-			"data": products,
+			"data":   products,
+			"count":  count,
+			"limit":  page.Limit,
+			"page":   page.Page,
+			"filter": page.Filter,
 		})
 		// ctx.JSON(200)
 
